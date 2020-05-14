@@ -213,6 +213,8 @@
             <key type="filename">../../../../../Desktop/pac-man/single.png</key>
             <key type="filename">../../../../../Desktop/pac-man/straight-horiz.png</key>
             <key type="filename">../../../../../Desktop/pac-man/straight-vert.png</key>
+            <key type="filename">../../../../../Desktop/pac-man/white-dot-small.png</key>
+            <key type="filename">../../../../../Desktop/pac-man/white-dot.png</key>
             <struct type="IndividualSpriteSettings">
                 <key>pivotPoint</key>
                 <point_f>0.5,0.5</point_f>
@@ -262,6 +264,8 @@
             <filename>../../../../../Desktop/pac-man/single.png</filename>
             <filename>../../../../../Desktop/pac-man/straight-horiz.png</filename>
             <filename>../../../../../Desktop/pac-man/straight-vert.png</filename>
+            <filename>../../../../../Desktop/pac-man/white-dot.png</filename>
+            <filename>../../../../../Desktop/pac-man/white-dot-small.png</filename>
         </array>
         <key>ignoreFileList</key>
         <array/>

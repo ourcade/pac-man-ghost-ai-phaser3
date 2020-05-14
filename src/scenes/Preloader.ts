@@ -5,7 +5,7 @@ export default class Preloader extends Phaser.Scene
 {
 	preload()
 	{
-		this.load.image('tiles', 'assets/board.png')
+		this.load.atlas('tiles', 'assets/board.png', 'assets/board.json')
 		this.load.atlas('game-atlas', 'assets/game.png', 'assets/game.json')
 	}
 

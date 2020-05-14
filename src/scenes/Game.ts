@@ -9,6 +9,20 @@ enum Moves
 	Down
 }
 
+const createHeroAnims = (anims: Phaser.Animations.AnimationManager) => {
+	anims.create({
+		key: 'hero-move',
+		frameRate: 10,
+		frames: anims.generateFrameNames('game-atlas', { prefix: 'hero-', suffix: '.png', start: 1, end: 2 }),
+		repeat: -1
+	})
+
+	anims.create({
+		key: 'hero-idle',
+		frames: [{ key: 'game-atlas', frame: 'hero-2.png' }]
+	})
+}
+
 export default class Game extends Phaser.Scene
 {
 	private hero?: Phaser.Physics.Arcade.Sprite
@@ -36,12 +50,22 @@ export default class Game extends Phaser.Scene
 		const tileset = map.addTilesetImage('basic_tiles', 'tiles')
 		
 		this.boardLayer = map.createDynamicLayer('Board', tileset)
+		const dotsLayer = map.createDynamicLayer('Dots', tileset)
+
+		const dots = dotsLayer.createFromTiles(33, -1, { key: 'tiles', frame: 'white-dot-small.png', origin: 0 })
+		dots.forEach(dot => {
+			this.physics.add.existing(dot)
+			const body = dot.body as Phaser.Physics.Arcade.Body
+			body.setCircle(4, 12, 12)
+		})
 
 		this.boardLayer.forEachTile((tile: Phaser.Tilemaps.Tile) => {
 			tile.tint = 0x3ba3ff
 		})
 
 		this.boardLayer.setCollisionByProperty({ collides: true })
+
+		createHeroAnims(this.anims)
 
 		const objectsLayer = map.getObjectLayer('BoardObjects')
 		for (let i = 0; i < objectsLayer.objects.length; ++i)
@@ -53,8 +77,10 @@ export default class Game extends Phaser.Scene
 				{
 					const x = Math.round(obj.x! / 32) * 32
 					const y = Math.round(obj.y! / 32) * 32
-					this.hero = this.physics.add.sprite(x + 16, y + 16, 'game-atlas', 'hero-2.png')
+					this.hero = this.physics.add.sprite(x + 16, y + 16, 'game-atlas')
 						.setTint(0xfffc3b)
+
+					this.hero.play('hero-idle')
 					const body = this.hero.body as Phaser.Physics.Arcade.Body
 					body.setCircle(16)
 						.setFriction(0, 0)
@@ -64,6 +90,22 @@ export default class Game extends Phaser.Scene
 		}
 
 		this.setupHero(this.boardLayer)
+
+		this.physics.add.overlap(this.hero!, dots, this.handlePlayerEatDot.bind(this), (obj1, obj2) => {
+			const o1 = obj1 as Phaser.Physics.Arcade.Sprite
+			const o2 = obj2 as Phaser.Physics.Arcade.Sprite
+			const o2p = o2.body.position.clone()
+			o2p.x -= 16
+			o2p.y -= 16
+			const d2 = Phaser.Math.Distance.BetweenPointsSquared(o1.body.position, o2p)
+			return d2 <= 100
+		})
+	}
+
+	private handlePlayerEatDot(obj1: Phaser.GameObjects.GameObject, obj2: Phaser.GameObjects.GameObject)
+	{
+		const dot = obj2 as Phaser.Physics.Arcade.Sprite
+		dot.destroy(true)
 	}
 	
 	update(t: number, dt: number)
@@ -78,6 +120,16 @@ export default class Game extends Phaser.Scene
 		const x = (Math.floor(this.hero.x / 32) * 32) + 16
 		const y = (Math.floor(this.hero.y / 32) * 32) + 16
 		const vel = this.hero.body.velocity
+
+		if (vel.x !== 0 || vel.y !== 0)
+		{
+			this.hero.play('hero-move', true)
+		}
+		else
+		{
+			this.hero.play('hero-idle')
+			this.queuedMove = Moves.None
+		}
 
 		if (this.cursors.left?.isDown && vel.x >= 0)
 		{
@@ -180,28 +232,40 @@ export default class Game extends Phaser.Scene
 		switch (this.lastKeyDown)
 		{
 			case Moves.Left:
-				this.hero.y = y
+			{
+				const y = (Math.floor((this.hero.body.y + 16) / 32) * 32) // + 16
+				this.hero.body.y = y
 				this.hero.setVelocity(-speed, 0)
 				this.hero.setAngle(180)
-				break;
+				break
+			}
 
 			case Moves.Right:
-				this.hero.y = y
+			{
+				const y = (Math.floor((this.hero.body.y + 16) / 32) * 32) // + 16
+				this.hero.body.y = y
 				this.hero.setVelocity(speed, 0)
 				this.hero.setAngle(0)
 				break
+			}
 
 			case Moves.Up:
-				this.hero.x = x
+			{
+				const x = Math.floor((this.hero.body.x + 16) / 32) * 32
+				this.hero.body.x = x
 				this.hero.setVelocity(0, -speed)
 				this.hero.setAngle(-90)
 				break
+			}
 
 			case Moves.Down:
-				this.hero.x = x
+			{
+				const x = Math.floor((this.hero.body.x + 16) / 32) * 32
+				this.hero.body.x = x
 				this.hero.setVelocity(0, speed)
 				this.hero.setAngle(90)
 				break
+			}
 		
 			default:
 				break;

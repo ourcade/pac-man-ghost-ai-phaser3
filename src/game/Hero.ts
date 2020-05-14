@@ -1,5 +1,7 @@
 import Phaser from 'phaser'
 
+import { heroEvents } from '../events/HeroEvents'
+
 enum Moves
 {
 	None,
@@ -9,11 +11,26 @@ enum Moves
 	Down
 }
 
+enum HeroState
+{
+	Normal,
+	Powered
+}
+
 export default class Hero extends Phaser.Physics.Arcade.Sprite
 {
 	private queuedMove = Moves.None
 	private lastKeyDown = Moves.None
 	private queuedMoveAccumulator = 0
+
+	private heroState = HeroState.Normal
+
+	private poweredAccumulator = 0
+
+	get isPowered()
+	{
+		return this.heroState === HeroState.Powered
+	}
 
 	constructor(scene: Phaser.Scene, x: number, y: number, texture: string)
 	{
@@ -21,6 +38,46 @@ export default class Hero extends Phaser.Physics.Arcade.Sprite
 
 		this.setTint(0xfffc3b)
 		this.play('hero-idle')
+	}
+
+	canEatDot(dot: Phaser.Physics.Arcade.Sprite)
+	{
+		const heroPos = this.body.position
+
+		const body = dot.body as Phaser.Physics.Arcade.Body
+		const dotPos = body.position.clone()
+		dotPos.x -= body.offset.x
+		dotPos.y -= body.offset.y
+
+		return Phaser.Math.Distance.BetweenPointsSquared(heroPos, dotPos) <= 100
+	}
+
+	eatPowerDot(dot: Phaser.Physics.Arcade.Sprite)
+	{
+		this.heroState = HeroState.Powered
+		this.poweredAccumulator = 0
+		dot.destroy(true)
+
+		heroEvents.emit('powered-start')
+	}
+
+	preUpdate(t: number, dt: number)
+	{
+		super.preUpdate(t, dt)
+
+		if (this.heroState === HeroState.Normal)
+		{
+			return
+		}
+
+		this.poweredAccumulator += dt
+		if (this.poweredAccumulator >= 8000)
+		{
+			this.heroState = HeroState.Normal
+			this.poweredAccumulator = 0
+
+			heroEvents.emit('powered-end')
+		}
 	}
 
 	handleMovement(dt: number, cursors: Phaser.Types.Input.Keyboard.CursorKeys, boardLayer: Phaser.Tilemaps.DynamicTilemapLayer)

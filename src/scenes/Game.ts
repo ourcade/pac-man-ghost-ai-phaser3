@@ -82,20 +82,20 @@ export default class Game extends Phaser.Scene
 
 	private handlePlayerEatPowerDot(obj1: Phaser.GameObjects.GameObject, obj2: Phaser.GameObjects.GameObject)
 	{
-		obj2.destroy(true)
+		if (!this.hero)
+		{
+			return
+		}
+		this.hero.eatPowerDot(obj2 as Phaser.Physics.Arcade.Sprite)
 	}
 
 	private processPlayerEatDot(obj1: Phaser.GameObjects.GameObject, obj2: Phaser.GameObjects.GameObject)
 	{
-		const o1 = obj1 as Phaser.Physics.Arcade.Sprite
-		const o2 = obj2 as Phaser.Physics.Arcade.Sprite
-
-		const o1p = o1.body.position
-		const o2p = o2.body.position.clone()
-		o2p.x -= o2.body.offset.x
-		o2p.y -= o2.body.offset.y
-
-		return Phaser.Math.Distance.BetweenPointsSquared(o1p, o2p) <= 100
+		if (!this.hero)
+		{
+			return false
+		}
+		return this.hero.canEatDot(obj2 as Phaser.Physics.Arcade.Sprite)
 	}
 
 	private handlePlayerEatDot(obj1: Phaser.GameObjects.GameObject, obj2: Phaser.GameObjects.GameObject)

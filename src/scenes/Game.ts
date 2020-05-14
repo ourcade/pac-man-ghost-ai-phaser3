@@ -1,21 +1,11 @@
 import Phaser from 'phaser'
 import Hero from '../game/Hero'
 
+import { createHeroAnims } from '../game/HeroAnims'
+import { createGhostAnims } from '../game/GhostAnims'
+
 import '../game/Hero'
-
-const createHeroAnims = (anims: Phaser.Animations.AnimationManager) => {
-	anims.create({
-		key: 'hero-move',
-		frameRate: 10,
-		frames: anims.generateFrameNames('game-atlas', { prefix: 'hero-', suffix: '.png', start: 1, end: 2 }),
-		repeat: -1
-	})
-
-	anims.create({
-		key: 'hero-idle',
-		frames: [{ key: 'game-atlas', frame: 'hero-2.png' }]
-	})
-}
+import '../game/Ghost'
 
 export default class Game extends Phaser.Scene
 {
@@ -69,6 +59,7 @@ export default class Game extends Phaser.Scene
 		})
 
 		createHeroAnims(this.anims)
+		createGhostAnims(this.anims)
 
 		this.createFromObjectsLayer(map.getObjectLayer('BoardObjects'))
 		this.setupHero(this.boardLayer)
@@ -78,6 +69,9 @@ export default class Game extends Phaser.Scene
 			this.physics.add.overlap(this.hero, dots, this.handlePlayerEatDot, this.processPlayerEatDot, this)
 			this.physics.add.overlap(this.hero, powerDots, this.handlePlayerEatPowerDot, this.processPlayerEatDot, this)
 		}
+
+		this.add.ghost(288, 256, this.boardLayer)
+			.makeRed()
 	}
 
 	private handlePlayerEatPowerDot(obj1: Phaser.GameObjects.GameObject, obj2: Phaser.GameObjects.GameObject)
@@ -140,5 +134,7 @@ export default class Game extends Phaser.Scene
 		this.cameras.main.startFollow(this.hero, true)
 		this.cameras.main.useBounds = true
 		this.cameras.main.setBounds(0, 0, board.width, board.height)
+
+		this.physics.world.setBounds(0, 0, board.width, board.height)
 	}
 }

@@ -65,6 +65,8 @@ export default class Hero extends Phaser.Physics.Arcade.Sprite
 	{
 		super.preUpdate(t, dt)
 
+		this.scene.physics.world.wrapObject(this, 32)
+
 		if (this.heroState === HeroState.Normal)
 		{
 			return

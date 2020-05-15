@@ -34,10 +34,9 @@ export default class FlankHeroAI implements IGhostAI
 		const tx = this.hero.x + TileSize * (heroDir.x * 2)
 		const ty = this.hero.y + TileSize * (heroDir.y * 2)
 
-		const pt = new Phaser.Geom.Point(this.chasingGhost.x, this.chasingGhost.y)
-		const target = Phaser.Math.RotateAround(pt, tx, ty, Math.PI)
+		const pt = new Phaser.Geom.Point(tx - this.chasingGhost.x, ty - this.chasingGhost.y)
 		
-		return { x: target.x, y: target.y }
+		return { x: tx + pt.x, y: ty + pt.y }
 	}
 
 	constructor(hero: Hero, ghost: Ghost, chasingGhost: Ghost, board: Phaser.Tilemaps.DynamicTilemapLayer, mimicOriginal = false)

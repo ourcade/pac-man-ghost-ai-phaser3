@@ -38,11 +38,11 @@ export default class ChaseHeroAI implements IGhostAI
 		const ty = this.hero.body.position.y
 
 		const backwardsPosition = getOppositeDirection(this.ghost.currentDirection)
-		const directions = getOrderedDirections().filter(dir => dir !== backwardsPosition)
+		const directions = getOrderedDirections(dir => dir !== backwardsPosition)
 
 		return determineDirectionFromTarget(
 			this.ghost.x, this.ghost.y,
-			this.hero.x, this.hero.y,
+			tx, ty,
 			directions,
 			this.board
 		)

@@ -1,4 +1,4 @@
-import { Direction, getOppositeDirection } from '../IGhostAI'
+import { Direction } from '../IGhostAI'
 
 import positionInDirection from './positionInDirection'
 

@@ -81,7 +81,7 @@ export default class Game extends Phaser.Scene
 		// ghost.setAI(new SimpleGhostAI(ghost, this.boardLayer))
 		// ghost.setAI(new ScatterAI(this.boardLayer!.width, this.boardLayer!.height, ghost, this.boardLayer))
 		// ghost.setAI(new ChaseHeroAI(this.hero!, ghost, this.boardLayer))
-		ghost.setAI(new InterceptHeroAI(this.hero!, ghost, this.boardLayer))
+		ghost.setAI(new InterceptHeroAI(this.hero!, ghost, this.boardLayer, true))
 	}
 
 	private handlePlayerEatPowerDot(obj1: Phaser.GameObjects.GameObject, obj2: Phaser.GameObjects.GameObject)

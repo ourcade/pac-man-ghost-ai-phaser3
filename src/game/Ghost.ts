@@ -168,10 +168,11 @@ export default class Ghost extends Phaser.GameObjects.Container
 		this.lastTilePosition.y = gy
 
 		const speed = this.aiStrategy.speed
-		const tPos = this.aiStrategy.targetPosition
-		this.targetIndicator.setPosition(tPos.x, tPos.y)
 
 		const dir = this.aiStrategy.pickDirection()
+
+		const tPos = this.aiStrategy.targetPosition
+		this.targetIndicator.setPosition(tPos.x, tPos.y)
 		
 		switch (dir)
 		{

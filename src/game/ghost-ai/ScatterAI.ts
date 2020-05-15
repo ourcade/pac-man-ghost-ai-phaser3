@@ -20,7 +20,7 @@ export default class ScatterAI implements IGhostAI
 	get targetPosition()
 	{
 		return {
-			x: this.targetY,
+			x: this.targetX,
 			y: this.targetY
 		}
 	}

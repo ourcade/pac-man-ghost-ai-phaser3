@@ -12,6 +12,7 @@ import ChaseHeroAI from '~/game/ghost-ai/ChaseHeroAI'
 import InterceptHeroAI from '~/game/ghost-ai/InterceptHeroAI'
 import FlankHeroAI from '../game/ghost-ai/FlankHeroAI'
 import PlayfullyChaseHeroAI from '~/game/ghost-ai/PlayfullyChaseHeroAI'
+import HeroAI from '~/game/HeroAI'
 
 export default class Game extends Phaser.Scene
 {
@@ -151,6 +152,7 @@ export default class Game extends Phaser.Scene
 					const x = Math.round(obj.x! / 32) * 32
 					const y = Math.round(obj.y! / 32) * 32
 					this.hero = this.add.hero(x + 16, y + 16, 'game-atlas')
+					this.hero.setAI(new HeroAI())
 					break
 				}
 			}

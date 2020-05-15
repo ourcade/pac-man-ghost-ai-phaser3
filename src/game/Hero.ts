@@ -1,6 +1,7 @@
 import Phaser from 'phaser'
 
 import { heroEvents } from '../events/HeroEvents'
+import HeroAI from './HeroAI'
 
 enum Moves
 {
@@ -26,6 +27,7 @@ export default class Hero extends Phaser.Physics.Arcade.Sprite
 	private heroState = HeroState.Normal
 
 	private poweredAccumulator = 0
+	private heroAI?: HeroAI
 
 	get isPowered()
 	{
@@ -45,6 +47,11 @@ export default class Hero extends Phaser.Physics.Arcade.Sprite
 
 		this.setTint(0xfffc3b)
 		this.play('hero-idle')
+	}
+
+	setAI(ai: HeroAI)
+	{
+		this.heroAI = ai
 	}
 
 	canEatDot(dot: Phaser.Physics.Arcade.Sprite)
@@ -107,7 +114,9 @@ export default class Hero extends Phaser.Physics.Arcade.Sprite
 			this.lastKeyDown = Moves.None
 		}
 
-		if (cursors.left?.isDown && vel.x >= 0)
+		const keysDown = this.getKeysDownState(cursors)
+
+		if (keysDown.left && vel.x >= 0)
 		{
 			if (!boardLayer.getTileAtWorldXY(this.x - 32, this.y))
 			{
@@ -117,7 +126,7 @@ export default class Hero extends Phaser.Physics.Arcade.Sprite
 				}	
 			}
 		}
-		else if (cursors.right?.isDown && vel.x <= 0)
+		else if (keysDown.right && vel.x <= 0)
 		{
 			if (!boardLayer.getTileAtWorldXY(this.x + 32, this.y))
 			{
@@ -127,7 +136,7 @@ export default class Hero extends Phaser.Physics.Arcade.Sprite
 				}
 			}
 		}
-		else if (cursors.up?.isDown && vel.y >= 0)
+		else if (keysDown.up && vel.y >= 0)
 		{
 			if (!boardLayer.getTileAtWorldXY(this.x, this.y - 32))
 			{
@@ -137,7 +146,7 @@ export default class Hero extends Phaser.Physics.Arcade.Sprite
 				}
 			}
 		}
-		else if (cursors.down?.isDown && vel.y <= 0)
+		else if (keysDown.down && vel.y <= 0)
 		{
 			if (!boardLayer.getTileAtWorldXY(this.x, this.y + 32))
 			{
@@ -245,6 +254,21 @@ export default class Hero extends Phaser.Physics.Arcade.Sprite
 		
 			default:
 				break;
+		}
+	}
+
+	private getKeysDownState(cursors: Phaser.Types.Input.Keyboard.CursorKeys)
+	{
+		if (this.heroAI)
+		{
+			return this.heroAI.getKeysDownState()
+		}
+
+		return {
+			left: cursors.left?.isDown,
+			right: cursors.right?.isDown,
+			up: cursors.up?.isDown,
+			down: cursors.down?.isDown
 		}
 	}
 }

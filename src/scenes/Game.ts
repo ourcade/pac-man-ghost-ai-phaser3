@@ -6,6 +6,9 @@ import { createGhostAnims } from '../game/GhostAnims'
 
 import '../game/Hero'
 import '../game/Ghost'
+import SimpleGhostAI from '~/game/ghost-ai/SimpleGhostAI'
+import ScatterAI from '~/game/ghost-ai/ScatterAI'
+import ChaseHeroAI from '~/game/ghost-ai/ChaseHeroAI'
 
 export default class Game extends Phaser.Scene
 {
@@ -70,8 +73,12 @@ export default class Game extends Phaser.Scene
 			this.physics.add.overlap(this.hero, powerDots, this.handlePlayerEatPowerDot, this.processPlayerEatDot, this)
 		}
 
-		this.add.ghost(288, 256, this.boardLayer)
+		const ghost = this.add.ghost(288, 256)
 			.makeRed()
+
+		// ghost.setAI(new SimpleGhostAI(ghost, this.boardLayer))
+		// ghost.setAI(new ScatterAI(this.boardLayer!.width, this.boardLayer!.height, ghost, this.boardLayer))
+		ghost.setAI(new ChaseHeroAI(this.hero!, ghost, this.boardLayer))
 	}
 
 	private handlePlayerEatPowerDot(obj1: Phaser.GameObjects.GameObject, obj2: Phaser.GameObjects.GameObject)

@@ -1,26 +1,28 @@
 import Phaser from 'phaser'
 
-enum Direction
-{
-	Left,
-	Right,
-	Up,
-	Down
-}
+import { Direction, IGhostAI } from './ghost-ai/IGhostAI'
 
 export default class Ghost extends Phaser.GameObjects.Container
 {
-	private ghostBody: Phaser.GameObjects.Sprite
-	private leftPupil: Phaser.GameObjects.Image
-	private rightPupil: Phaser.GameObjects.Image
+	private readonly ghostBody: Phaser.GameObjects.Sprite
+	private readonly leftPupil: Phaser.GameObjects.Image
+	private readonly rightPupil: Phaser.GameObjects.Image
 
-	private readonly boardLayer: Phaser.Tilemaps.DynamicTilemapLayer
+	private aiStrategy?: IGhostAI
+	private lastDirection = Direction.None
 
-	constructor(scene: Phaser.Scene, x: number, y: number, board: Phaser.Tilemaps.DynamicTilemapLayer)
+	private lastTilePosition = { x: -1, y: -1 }
+
+	private targetIndicator: Phaser.GameObjects.Text
+
+	get currentDirection()
+	{
+		return this.lastDirection
+	}
+
+	constructor(scene: Phaser.Scene, x: number, y: number)
 	{
 		super(scene, x, y)
-
-		this.boardLayer = board
 
 		this.ghostBody = scene.add.sprite(16, 16, 'game-atlas')
 		this.ghostBody.play('ghost-body-idle')
@@ -37,30 +39,47 @@ export default class Ghost extends Phaser.GameObjects.Container
 		this.add(this.leftPupil)
 		this.add(this.rightPupil)
 
-		this.look('center')
+		this.look(Direction.None)
+
+		this.targetIndicator = scene.add.text(0, 0, 'x')
+			.setOrigin(0.5)
+			.setDepth(1000)
+	}
+
+	setAI(ai: IGhostAI)
+	{
+		this.aiStrategy = ai
 	}
 
 	makeRed()
 	{
 		this.ghostBody.setTint(0xFF0400)
+		this.targetIndicator.setColor('#FF0400')
+		return this
 	}
 
 	makeTeal()
 	{
 		this.ghostBody.setTint(0x0CF9E3)
+		this.targetIndicator.setColor('#0CF9E3')
+		return this
 	}
 
 	makePink()
 	{
 		this.ghostBody.setTint(0xFCB4E3)
+		this.targetIndicator.setColor('#FCB4E3')
+		return this
 	}
 
 	makeOrange()
 	{
 		this.ghostBody.setTint(0xFCB72C)
+		this.targetIndicator.setColor('#FCB72C')
+		return this
 	}
 
-	look(direction: 'left' | 'right' | 'up' | 'down' | 'center')
+	look(direction: Direction)
 	{
 		switch (direction)
 		{
@@ -71,28 +90,28 @@ export default class Ghost extends Phaser.GameObjects.Container
 				this.rightPupil.y = 11
 				break
 
-			case 'left':
+			case Direction.Left:
 				this.leftPupil.x = 7
 				this.leftPupil.y = 11
 				this.rightPupil.x = 20
 				this.rightPupil.y = 11
 				break
 			
-			case 'right':
+			case Direction.Right:
 				this.leftPupil.x = 12
 				this.leftPupil.y = 11
 				this.rightPupil.x = 25
 				this.rightPupil.y = 11
 				break
 
-			case 'up':
+			case Direction.Up:
 				this.leftPupil.x = 10
 				this.leftPupil.y = 8
 				this.rightPupil.x = 22
 				this.rightPupil.y = 8
 				break
 
-			case 'down':
+			case Direction.Down:
 				this.leftPupil.x = 10
 				this.leftPupil.y = 15
 				this.rightPupil.x = 22
@@ -103,16 +122,33 @@ export default class Ghost extends Phaser.GameObjects.Container
 
 	preUpdate(t: number, dt: number)
 	{
+		if (!this.aiStrategy)
+		{
+			return
+		}
+
 		this.scene.physics.world.wrapObject(this, 32)
 
 		const body = this.body as Phaser.Physics.Arcade.Body
 		const x = body.position.x
 		const y = body.position.y
 
+		if (!Phaser.Geom.Rectangle.Contains(this.scene.physics.world.bounds, x, y))
+		{
+			// don't switch direction when outside of world; being wrapped
+			return
+		}
+
 		const gx = (Math.floor(x / 32) * 32)
 		const gy = (Math.floor(y / 32) * 32)
 
-		if (Math.abs(x - gx) > 2 || Math.abs(y - gy) > 2)
+		if (this.lastTilePosition.x === gx && this.lastTilePosition.y === gy)
+		{
+			// skip if we just handled this position
+			return
+		}
+
+		if (Math.abs(x - gx) > 4 || Math.abs(y - gy) > 4)
 		{
 			return
 		}
@@ -120,122 +156,44 @@ export default class Ghost extends Phaser.GameObjects.Container
 		body.position.x = gx
 		body.position.y = gy
 
-		const speed = 100
-		const dir = this.pickDirection()
+		this.lastTilePosition.x = gx
+		this.lastTilePosition.y = gy
+
+		const speed = this.aiStrategy.speed
+		const tPos = this.aiStrategy.targetPosition
+		this.targetIndicator.setPosition(tPos.x, tPos.y)
+
+		const dir = this.aiStrategy.pickDirection()
 		
 		switch (dir)
 		{
 			case 0:
-				this.look('left')
+				this.look(Direction.Left)
 				body.setVelocity(-speed, 0)
 				break
 
 			case 1:
-				this.look('right')
+				this.look(Direction.Right)
 				body.setVelocity(speed, 0)
 				break
 
 			case 2:
-				this.look('up')
+				this.look(Direction.Up)
 				body.setVelocity(0, -speed)
 				break
 
 			case 3:
-				this.look('down')
+				this.look(Direction.Down)
 				body.setVelocity(0, speed)
 				break
 		}
-	}
 
-	private pickDirection()
-	{
-		const body = this.body as Phaser.Physics.Arcade.Body
-		const x = body.position.x
-		const y = body.position.y
-
-		const directions = this.getPossibleDirections()
-		
-		for (let i = 0; i < directions.length; ++i)
-		{
-			const dir = directions[i]
-			switch (dir)
-			{
-				case Direction.Left:
-				{
-					// check left
-					if (!this.boardLayer.getTileAtWorldXY(x - 32, y))
-					{
-						return dir
-					}
-					break
-				}
-
-				case Direction.Right:
-				{
-					// check right
-					if (!this.boardLayer.getTileAtWorldXY(x + 32, y))
-					{
-						return dir
-					}
-					break
-				}
-
-				case Direction.Up:
-				{
-					// check up
-					if (!this.boardLayer.getTileAtWorldXY(x, y - 32))
-					{
-						return dir
-					}
-					break
-				}
-
-				case Direction.Down:
-				{
-					// check up
-					if (!this.boardLayer.getTileAtWorldXY(x, y + 32))
-					{
-						return dir
-					}
-					break
-				}
-			}
-		}
-
-		return -1
-	}
-
-	private getPossibleDirections()
-	{
-		const body = this.body as Phaser.Physics.Arcade.Body
-		const vel = body.velocity
-
-		let oppositeDir = -1
-
-		if (vel.x < 0)
-		{
-			oppositeDir = Direction.Right
-		}
-		else if (vel.x > 0)
-		{
-			oppositeDir = Direction.Left
-		}
-		else if (vel.y < 0)
-		{
-			oppositeDir = Direction.Down
-		}
-		else if (vel.y > 0)
-		{
-			oppositeDir = Direction.Up
-		}
-
-		return [Direction.Left, Direction.Right, Direction.Up, Direction.Down]
-			.filter(dir => dir !== oppositeDir)
+		this.lastDirection = dir
 	}
 }
 
-Phaser.GameObjects.GameObjectFactory.register('ghost', function (this: Phaser.GameObjects.GameObjectFactory, x: number, y: number, board: Phaser.Tilemaps.DynamicTilemapLayer) {
-	const ghost = new Ghost(this.scene, x, y, board)
+Phaser.GameObjects.GameObjectFactory.register('ghost', function (this: Phaser.GameObjects.GameObjectFactory, x: number, y: number) {
+	const ghost = new Ghost(this.scene, x, y)
 
 	this.displayList.add(ghost)
 	this.updateList.add(ghost)
@@ -249,15 +207,13 @@ Phaser.GameObjects.GameObjectFactory.register('ghost', function (this: Phaser.Ga
 	return ghost
 })
 
-type Layer = Phaser.Tilemaps.DynamicTilemapLayer
-
 declare global
 {
 	namespace Phaser.GameObjects
 	{
 		interface GameObjectFactory
 		{
-			ghost(x: number, y: number, board: Layer): Ghost
+			ghost(x: number, y: number): Ghost
 		}
 	}
 }

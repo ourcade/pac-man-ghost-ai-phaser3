@@ -32,6 +32,13 @@ export default class Hero extends Phaser.Physics.Arcade.Sprite
 		return this.heroState === HeroState.Powered
 	}
 
+	get facingVector()
+	{
+		const vec = new Phaser.Math.Vector2()
+		vec.setToPolar(this.rotation)
+		return vec
+	}
+
 	constructor(scene: Phaser.Scene, x: number, y: number, texture: string)
 	{
 		super(scene, x, y, texture)

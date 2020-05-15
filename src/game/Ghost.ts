@@ -44,11 +44,19 @@ export default class Ghost extends Phaser.GameObjects.Container
 		this.targetIndicator = scene.add.text(0, 0, 'x')
 			.setOrigin(0.5)
 			.setDepth(1000)
+
+		this.enableTargetMarker(false)
 	}
 
 	setAI(ai: IGhostAI)
 	{
 		this.aiStrategy = ai
+	}
+
+	enableTargetMarker(enable: boolean)
+	{
+		this.targetIndicator.setVisible(enable)
+		return this
 	}
 
 	makeRed()

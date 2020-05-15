@@ -9,6 +9,7 @@ import '../game/Ghost'
 import SimpleGhostAI from '~/game/ghost-ai/SimpleGhostAI'
 import ScatterAI from '~/game/ghost-ai/ScatterAI'
 import ChaseHeroAI from '~/game/ghost-ai/ChaseHeroAI'
+import InterceptHeroAI from '~/game/ghost-ai/InterceptHeroAI'
 
 export default class Game extends Phaser.Scene
 {
@@ -75,10 +76,12 @@ export default class Game extends Phaser.Scene
 
 		const ghost = this.add.ghost(288, 256)
 			.makeRed()
+			.enableTargetMarker(true)
 
 		// ghost.setAI(new SimpleGhostAI(ghost, this.boardLayer))
 		// ghost.setAI(new ScatterAI(this.boardLayer!.width, this.boardLayer!.height, ghost, this.boardLayer))
-		ghost.setAI(new ChaseHeroAI(this.hero!, ghost, this.boardLayer))
+		// ghost.setAI(new ChaseHeroAI(this.hero!, ghost, this.boardLayer))
+		ghost.setAI(new InterceptHeroAI(this.hero!, ghost, this.boardLayer))
 	}
 
 	private handlePlayerEatPowerDot(obj1: Phaser.GameObjects.GameObject, obj2: Phaser.GameObjects.GameObject)

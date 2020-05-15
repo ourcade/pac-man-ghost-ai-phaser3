@@ -1,6 +1,6 @@
 import { Direction } from "../IGhostAI";
 
-const TileSize = 32
+import { TileSize } from '../consts/TileConfig'
 
 const positionInDirection = (x: number, y: number, direction: Direction) => {
 	switch (direction)

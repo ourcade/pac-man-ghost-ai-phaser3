@@ -10,6 +10,7 @@ import SimpleGhostAI from '~/game/ghost-ai/SimpleGhostAI'
 import ScatterAI from '~/game/ghost-ai/ScatterAI'
 import ChaseHeroAI from '~/game/ghost-ai/ChaseHeroAI'
 import InterceptHeroAI from '~/game/ghost-ai/InterceptHeroAI'
+import FlankHeroAI from '../game/ghost-ai/FlankHeroAI'
 
 export default class Game extends Phaser.Scene
 {
@@ -74,14 +75,20 @@ export default class Game extends Phaser.Scene
 			this.physics.add.overlap(this.hero, powerDots, this.handlePlayerEatPowerDot, this.processPlayerEatDot, this)
 		}
 
-		const ghost = this.add.ghost(288, 256)
+		const blinky = this.add.ghost(256, 256)
 			.makeRed()
 			.enableTargetMarker(true)
+		blinky.setAI(new ChaseHeroAI(this.hero!, blinky, this.boardLayer))
+
+		const inky = this.add.ghost(288, 256)
+			.makeTeal()
+			.enableTargetMarker(true)
+		inky.setAI(new FlankHeroAI(this.hero!, inky, blinky, this.boardLayer, true))
 
 		// ghost.setAI(new SimpleGhostAI(ghost, this.boardLayer))
 		// ghost.setAI(new ScatterAI(this.boardLayer!.width, this.boardLayer!.height, ghost, this.boardLayer))
 		// ghost.setAI(new ChaseHeroAI(this.hero!, ghost, this.boardLayer))
-		ghost.setAI(new InterceptHeroAI(this.hero!, ghost, this.boardLayer, true))
+		// ghost.setAI(new InterceptHeroAI(this.hero!, ghost, this.boardLayer, true))
 	}
 
 	private handlePlayerEatPowerDot(obj1: Phaser.GameObjects.GameObject, obj2: Phaser.GameObjects.GameObject)

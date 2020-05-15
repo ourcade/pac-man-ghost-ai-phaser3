@@ -16,7 +16,15 @@ interface IGhostAI
 	pickDirection(): Direction
 }
 
-const getOrderedDirections = () => [ Direction.Up, Direction.Left, Direction.Down, Direction.Right ]
+const getOrderedDirections = (filter?: (dir: Direction) => boolean) => {
+	const dirs = [Direction.Up, Direction.Left, Direction.Down, Direction.Right]
+	if (!filter)
+	{
+		return dirs
+	}
+	return dirs.filter(filter)
+}
+
 const getOppositeDirection = (direction: Direction) => {
 	switch (direction)
 	{

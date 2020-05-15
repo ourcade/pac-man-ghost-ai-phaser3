@@ -1,9 +1,9 @@
 import Phaser from 'phaser'
 
-import { Direction, IGhostAI, getOrderedDirections, getOppositeDirection } from './IGhostAI'
+import { IGhostAI, getOrderedDirections, getOppositeDirection } from './IGhostAI'
 import Ghost from '../Ghost'
 
-import positionInDirection from './utils/positionInDirection'
+import determineDirectionFromTarget from './utils/determineDirectionFromTarget'
 
 export default class ScatterAI implements IGhostAI
 {
@@ -35,46 +35,14 @@ export default class ScatterAI implements IGhostAI
 
 	pickDirection()
 	{
-		const directions = getOrderedDirections()
-		let closestDirection = Direction.None
-		let closestDistance = -1
-
 		const backwardsDirection = getOppositeDirection(this.ghost.currentDirection)
+		const directions = getOrderedDirections(dir => dir !== backwardsDirection)
 
-		for (const dir of directions)
-		{
-			if (dir === backwardsDirection)
-			{
-				// cannot go backwards
-				continue
-			}
-
-			const x = this.ghost.x
-			const y = this.ghost.y
-			const position = positionInDirection(x, y, dir)
-
-			if (this.boardLayer.getTileAtWorldXY(position.x, position.y))
-			{
-				// cannot move into walls
-				continue
-			}
-
-			const d = Phaser.Math.Distance.Between(position.x, position.y, this.targetX, this.targetY)
-			if (closestDirection === Direction.None)
-			{
-				// first possible direction
-				closestDirection = dir
-				closestDistance = d
-				continue
-			}
-
-			if (d < closestDistance)
-			{
-				closestDirection = dir
-				closestDistance = d
-			}
-		}
-
-		return closestDirection
+		return determineDirectionFromTarget(
+			this.ghost.x, this.ghost.y,
+			this.targetX, this.targetY,
+			directions,
+			this.boardLayer
+		)
 	}
 }

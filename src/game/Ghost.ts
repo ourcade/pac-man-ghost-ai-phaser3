@@ -1,14 +1,15 @@
 import Phaser from 'phaser'
 
 import { Direction, IGhostAI } from './ghost-ai/IGhostAI'
+import IGhost from './IGhost'
 
-export default class Ghost extends Phaser.GameObjects.Container
+export default class Ghost extends Phaser.GameObjects.Container implements IGhost
 {
 	private readonly ghostBody: Phaser.GameObjects.Sprite
 	private readonly leftPupil: Phaser.GameObjects.Image
 	private readonly rightPupil: Phaser.GameObjects.Image
 
-	private aiStrategy?: IGhostAI
+	private aiBehavior?: IGhostAI
 	private lastDirection = Direction.None
 
 	private lastTilePosition = { x: -1, y: -1 }
@@ -50,7 +51,8 @@ export default class Ghost extends Phaser.GameObjects.Container
 
 	setAI(ai: IGhostAI)
 	{
-		this.aiStrategy = ai
+		this.aiBehavior = ai
+		return this
 	}
 
 	enableTargetMarker(enable: boolean)
@@ -130,7 +132,7 @@ export default class Ghost extends Phaser.GameObjects.Container
 
 	preUpdate(t: number, dt: number)
 	{
-		if (!this.aiStrategy)
+		if (!this.aiBehavior)
 		{
 			return
 		}
@@ -167,11 +169,11 @@ export default class Ghost extends Phaser.GameObjects.Container
 		this.lastTilePosition.x = gx
 		this.lastTilePosition.y = gy
 
-		const speed = this.aiStrategy.speed
+		const speed = this.aiBehavior.speed
 
-		const dir = this.aiStrategy.pickDirection()
+		const dir = this.aiBehavior.pickDirection()
 
-		const tPos = this.aiStrategy.targetPosition
+		const tPos = this.aiBehavior.targetPosition
 		this.targetIndicator.setPosition(tPos.x, tPos.y)
 		
 		switch (dir)

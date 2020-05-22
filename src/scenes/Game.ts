@@ -6,13 +6,14 @@ import { createGhostAnims } from '../game/GhostAnims'
 
 import '../game/Hero'
 import '../game/Ghost'
-import SimpleGhostAI from '~/game/ghost-ai/SimpleGhostAI'
+
 import ScatterAI from '~/game/ghost-ai/ScatterAI'
 import ChaseHeroAI from '~/game/ghost-ai/ChaseHeroAI'
 import InterceptHeroAI from '~/game/ghost-ai/InterceptHeroAI'
 import FlankHeroAI from '../game/ghost-ai/FlankHeroAI'
 import PlayfullyChaseHeroAI from '~/game/ghost-ai/PlayfullyChaseHeroAI'
 import HeroAI from '~/game/HeroAI'
+import Ghost from '../game/Ghost'
 
 export default class Game extends Phaser.Scene
 {
@@ -69,44 +70,14 @@ export default class Game extends Phaser.Scene
 		createGhostAnims(this.anims)
 
 		this.createFromObjectsLayer(map.getObjectLayer('BoardObjects'))
-		this.setupHero(this.boardLayer)
+
+		this.createGhosts()
 
 		if (this.hero)
 		{
 			this.physics.add.overlap(this.hero, dots, this.handlePlayerEatDot, this.processPlayerEatDot, this)
 			this.physics.add.overlap(this.hero, powerDots, this.handlePlayerEatPowerDot, this.processPlayerEatDot, this)
 		}
-
-		const blinky = this.add.ghost(256, 256)
-			.makeRed()
-			.enableTargetMarker(true)
-		blinky.setAI(new ChaseHeroAI(this.hero!, blinky, this.boardLayer))
-
-		const pinky = this.add.ghost(224, 256)
-			.makePink()
-			.enableTargetMarker(true)
-		pinky.setAI(new InterceptHeroAI(this.hero!, pinky, this.boardLayer, true))
-
-		const inky = this.add.ghost(288, 256)
-			.makeTeal()
-			.enableTargetMarker(true)
-		inky.setAI(new FlankHeroAI(this.hero!, inky, blinky, this.boardLayer, true))
-
-		const clyde = this.add.ghost(320, 256)
-			.makeOrange()
-			.enableTargetMarker(true)
-
-		clyde.setAI(new PlayfullyChaseHeroAI(
-			this.hero!,
-			clyde,
-			this.boardLayer,
-			new ScatterAI(16, this.boardLayer!.height - 16, clyde, this.boardLayer)
-		))
-
-		// ghost.setAI(new SimpleGhostAI(ghost, this.boardLayer))
-		// ghost.setAI(new ScatterAI(this.boardLayer!.width, this.boardLayer!.height, ghost, this.boardLayer))
-		// ghost.setAI(new ChaseHeroAI(this.hero!, ghost, this.boardLayer))
-		// ghost.setAI(new InterceptHeroAI(this.hero!, ghost, this.boardLayer, true))
 	}
 
 	private handlePlayerEatPowerDot(obj1: Phaser.GameObjects.GameObject, obj2: Phaser.GameObjects.GameObject)
@@ -140,6 +111,35 @@ export default class Game extends Phaser.Scene
 		}
 	}
 
+	private createGhosts()
+	{
+		const blinky = this.add.ghost(256, 256)
+			.makeRed()
+			.enableTargetMarker(true)
+		blinky.setAI(new ChaseHeroAI(this.hero!, blinky, this.boardLayer!))
+
+		const pinky = this.add.ghost(224, 256)
+			.makePink()
+			.enableTargetMarker(true)
+		pinky.setAI(new InterceptHeroAI(this.hero!, pinky, this.boardLayer!, true))
+
+		const inky = this.add.ghost(288, 256)
+			.makeTeal()
+			.enableTargetMarker(true)
+		inky.setAI(new FlankHeroAI(this.hero!, inky, blinky, this.boardLayer!, true))
+
+		const clyde = this.add.ghost(320, 256)
+			.makeOrange()
+			.enableTargetMarker(true)
+
+		clyde.setAI(new PlayfullyChaseHeroAI(
+			this.hero!,
+			clyde,
+			this.boardLayer!,
+			new ScatterAI(16, this.boardLayer!.height - 16, clyde, this.boardLayer!)
+		))
+	}
+
 	private createFromObjectsLayer(layer: Phaser.Tilemaps.ObjectLayer)
 	{
 		for (let i = 0; i < layer.objects.length; ++i)
@@ -152,7 +152,8 @@ export default class Game extends Phaser.Scene
 					const x = Math.round(obj.x! / 32) * 32
 					const y = Math.round(obj.y! / 32) * 32
 					this.hero = this.add.hero(x + 16, y + 16, 'game-atlas')
-					this.hero.setAI(new HeroAI())
+					// this.hero.setAI(new HeroAI())
+					this.setupHero(this.boardLayer!)
 					break
 				}
 			}

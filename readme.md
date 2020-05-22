@@ -7,6 +7,8 @@
 
 This is an example or starter project for a Pac-Man-style game with the original ghost AI behaviors for Blinky, Pinky, Inky, and Clyde.
 
+Power pellets and general level design is not implemented.
+
 [The code corresponds to a 6 part series on YouTube](https://www.youtube.com/playlist?list=PLumYWZ2t7CRsM-oQWyh_8NGSVXXRO8uw2) where we go over implementing each ghost AI using the State Pattern.
 
 [Check out a demo here](https://ourcade.co/templates/pac-man-starter-template).

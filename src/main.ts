@@ -15,6 +15,10 @@ const config: Phaser.Types.Core.GameConfig = {
 			gravity: { y: 0 },
 			debug: false
 		}
+	},
+	scale: {
+		mode: Phaser.Scale.ScaleModes.FIT,
+		autoCenter: Phaser.Scale.CENTER_BOTH
 	}
 }
 

@@ -24,4 +24,4 @@ All the image and audio files in this repository is stored with `git-lfs`. Alter
 
 ## License
 
-[MIT License](https://github.com/ourcade/phaser3-typescript-parcel-template/blob/master/LICENSE)
+[MIT License](https://github.com/ourcade/pac-man-ghost-ai-phaser3/blob/master/LICENSE)

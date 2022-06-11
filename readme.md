@@ -9,7 +9,7 @@ This is an example or starter project for a Pac-Man-style game with the original
 
 Power pellets and general level design is not implemented.
 
-[The code corresponds to a 6 part series on YouTube](https://www.youtube.com/playlist?list=PLumYWZ2t7CRsM-oQWyh_8NGSVXXRO8uw2) where we go over implementing each ghost AI using the State Pattern.
+[The code corresponds to a 6 part series on YouTube](https://www.youtube.com/playlist?list=PLNwtXgWIx3rgKV7k3ZlV1S4qUsl9j8YDI) where we go over implementing each ghost AI using the State Pattern.
 
 [Check out a demo here](https://ourcade.co/templates/pac-man-starter-template).
 
